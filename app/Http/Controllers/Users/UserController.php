@@ -15,13 +15,6 @@ use Exception;
 
 class UserController extends Controller
 {
-    /**
-     * UserController constructor.
-     */
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
 
 
     /**
@@ -31,24 +24,18 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        if (auth()->user()->role->id != 1) {
-            redirect('/dashboard');
+        $users = User::where('status', 1)->paginate(5);
+        foreach ($users as $usr) {
+            $usr->role;
+            $usr->branch;
         }
-
-        if ($request->ajax()) {
-            $users = User::where('status', 1)->get();
-            foreach($users as $usr){
-                 $usr->role;
-            }
-            return response()->json([
+        return response()->json(
+            [
                 'error' => 0,
                 'users' => $users
             ],
-                200);
-        }
-
-        $title = 'Usuarios';
-        return view('users.index', compact('title'));
+            200
+        );
     }
 
     /**
@@ -68,9 +55,10 @@ class UserController extends Controller
         $modal_close_route = route('user.index');
         $create = true;
         $users = User::where('status', 1)->get();
-        return view('users.index', compact(['title', 'users', 'roles', 'branchs', 'action',
-            'modal_close_route', 'modal', 'modal_title', 'modal_id', 'create']));
-
+        return view('users.index', compact([
+            'title', 'users', 'roles', 'branchs', 'action',
+            'modal_close_route', 'modal', 'modal_title', 'modal_id', 'create'
+        ]));
     }
 
     /**
@@ -140,9 +128,10 @@ class UserController extends Controller
         $modal_close_route = route('user.index');
         $users = User::where('status', 1)->get();
         $show = true;
-        return view('users.index', compact(['title', 'user', 'users', 'modal_close_route', 'modal',
-            'modal_title', 'modal_id', 'show']));
-
+        return view('users.index', compact([
+            'title', 'user', 'users', 'modal_close_route', 'modal',
+            'modal_title', 'modal_id', 'show'
+        ]));
     }
 
     /**
@@ -162,9 +151,11 @@ class UserController extends Controller
         $users = User::where('status', 1)->get();
         $edit = true;
 
-        return view('users.index', compact(['title', 'user', 'action',
+        return view('users.index', compact([
+            'title', 'user', 'action',
             'users', 'modal_close_route', 'modal',
-            'modal_title', 'modal_id', 'edit']));
+            'modal_title', 'modal_id', 'edit'
+        ]));
     }
 
     /**
@@ -222,7 +213,6 @@ class UserController extends Controller
             $btn = 'danger';
             $route = route('user.index');
             $btn_text = __('Aceptar');
-
         } else if ($id == Auth::user()->id) {
             $user = User::find($id);
             $user->update(['status' => 0]);
@@ -239,7 +229,5 @@ class UserController extends Controller
         }
 
         return view('messages.messages', compact(['bg', 'alert', 'message', 'btn', 'route', 'btn_text', 'title']));
-
     }
-
 }
